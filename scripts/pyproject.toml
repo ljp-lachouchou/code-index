@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-index"
+version = "1.0.0"
+description = "多语言代码语义索引工具，通过 tree-sitter 解析生成符号图"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "tree-sitter>=0.21,<0.22",     # tree-sitter Python 绑定（0.21.x API 最稳定）
+    "click>=8.1",                   # CLI 框架
+    "rich>=13.0",                   # 终端美化输出
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+]
+
+[project.scripts]
+code-index = "code_index.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code_index*"]
+
+[tool.setuptools.package-data]
+"code_index" = [
+    "parsers/*/queries/*.scm",
+    "grammars/*.so",
+    "grammars/*.dylib",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
