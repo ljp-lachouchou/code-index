@@ -113,6 +113,30 @@ code-index outline SomeFile.kt            # 文件大纲
 | Swift + Objective-C（iOS） | `--lang swift` / `--lang objc` |
 | TypeScript / TSX（React Native） | `--lang typescript` |
 
+## 扩展支持新语言
+
+要支持新的编程语言（如 Python、Go、Rust 等），需要完成以下步骤：
+
+1. **安装 tree-sitter grammar** —— 找到目标语言的 tree-sitter grammar 仓库
+2. **编写 query 脚本** —— 在 `parsers/<lang>/queries/` 目录下创建 `symbols.scm`（符号提取）和 `calls.scm`（调用关系提取）
+3. **实现 Parser 类** —— 继承 `BaseParser`，实现 `_node_to_symbol()` 和 `_node_to_edge()` 方法
+4. **在 Registry 中注册** —— 在 `parsers/registry.py` 中添加工厂方法和扩展名映射
+5. **测试验证** —— 创建测试用例确保新语言解析正确
+
+核心接口（`BaseParser`）仅需实现：
+
+```python
+class BaseParser(ABC):
+    @property
+    def language_name(self) -> str: ...  # tree-sitter grammar 名称
+    @property
+    def extensions(self) -> list[str]: ...  # 支持的文件扩展名
+    @property
+    def lang_enum(self) -> Language: ...  # Language 枚举值
+    def _node_to_symbol(self, captures, source, file_path, parent_context): ...
+    def _node_to_edge(self, captures, source, current_scope): ...
+```
+
 ## 为什么不用 grep？
 
 | 指标 | grep | code-index VFS |
