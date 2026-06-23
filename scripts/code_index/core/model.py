@@ -135,6 +135,9 @@ class CallEdge:
     callee_id: str = ""   # 被调用者 ID（跨文件解析后填入，可为空）
     resolved: bool = False  # callee_id 是否已解析到确定符号
 
+    # 调用点的参数签名提示（如参数个数），用于支持方法重载的精确匹配
+    callee_signature_hint: str = ""
+
     # id 由 caller_id + callee_name + file + line 的 hash 生成
     id: str = field(default="")
 
@@ -152,6 +155,9 @@ class CallEdge:
     def from_dict(cls, d: dict) -> "CallEdge":
         d = dict(d)
         d["kind"] = EdgeKind(d["kind"])
+        # 兼容旧数据：callee_signature_hint 可能不存在
+        if "callee_signature_hint" not in d:
+            d["callee_signature_hint"] = ""
         return cls(**d)
 
 

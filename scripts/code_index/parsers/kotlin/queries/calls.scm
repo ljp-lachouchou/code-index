@@ -7,14 +7,18 @@
 
 ; ── 普通函数调用：foo() ───────────────────────────────────────────────
 (call_expression
-  (simple_identifier) @callee) @call
+  (simple_identifier) @callee
+  (call_suffix
+    (value_arguments) @arguments)) @call
 
 ; ── 方法调用：obj.method() ────────────────────────────────────────────
 ; navigation_expression 的结构：simple_identifier + navigation_suffix
 (call_expression
   (navigation_expression
     (navigation_suffix
-      (simple_identifier) @callee))) @call
+      (simple_identifier) @callee))
+  (call_suffix
+    (value_arguments) @arguments)) @call
 
 ; ── 继承/实现关系（delegation_specifier）────────────────────────────
 (delegation_specifier

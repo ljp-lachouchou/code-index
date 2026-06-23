@@ -2,16 +2,19 @@
 ;;
 ;; Simple function call: func()
 (call_expression
-  function: (identifier) @callee) @call
+  function: (identifier) @callee
+  arguments: (arguments) @arguments) @call
 
 ;; Method call: obj.method()
 (call_expression
   function: (member_expression
-    property: (property_identifier) @callee)) @call
+    property: (property_identifier) @callee)
+  arguments: (arguments) @arguments) @call
 
 ;; new expression: new ClassName()
 (new_expression
-  constructor: (identifier) @callee) @call
+  constructor: (identifier) @callee
+  arguments: (arguments) @arguments) @call
 
 ;; class extends: class A extends B
 (class_declaration

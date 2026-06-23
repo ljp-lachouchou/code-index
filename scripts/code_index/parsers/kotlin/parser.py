@@ -131,6 +131,9 @@ class KotlinParser(BaseParser):
 
         edge_kind = EdgeKind.EXTENDS if is_extends else EdgeKind.CALL
 
+        # 提取调用点的参数个数作为签名提示（用于支持方法重载解析）
+        callee_signature_hint = self._extract_call_signature_hint(captures, source)
+
         return CallEdge(
             caller_id=caller_id,
             callee_name=callee_name,
@@ -139,7 +142,52 @@ class KotlinParser(BaseParser):
             file=current_scope.file if current_scope else "",
             line=anchor.start_point[0] + 1,
             resolved=False,
+            callee_signature_hint=callee_signature_hint,
         )
+
+    def _extract_call_signature_hint(
+        self,
+        captures: dict,
+        source: bytes,
+    ) -> str:
+        """从调用表达式中提取参数个数作为签名提示。
+
+        返回参数个数的字符串形式（如 "2"），用于 Resolver 区分重载方法。
+        """
+        # 尝试获取 arguments 节点（tree-sitter 中 call_expression 的 arguments）
+        args_node = captures.get("arguments")
+        if args_node is None:
+            return ""
+
+        # 统计参数个数（简单统计逗号分隔的子节点）
+        args_text = self.text_of(args_node, source)
+        if not args_text or args_text == "()":
+            return "0"
+
+        # 去除括号
+        inner = args_text.strip()
+        if inner.startswith("("):
+            inner = inner[1:]
+        if inner.endswith(")"):
+            inner = inner[:-1]
+
+        inner = inner.strip()
+        if not inner:
+            return "0"
+
+        # 按逗号分割，但要处理嵌套情况（如 lambda、函数调用等）
+        # 简单处理：按顶层逗号分割
+        count = 1
+        depth = 0
+        for char in inner:
+            if char in "({[<":
+                depth += 1
+            elif char in ")}]>":
+                depth -= 1
+            elif char == "," and depth == 0:
+                count += 1
+
+        return str(count)
 
     # ── 私有辅助方法 ─────────────────────────────────────────────────────────
 

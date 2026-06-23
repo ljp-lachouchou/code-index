@@ -158,6 +158,8 @@ class TypeScriptParser(BaseParser):
         else:
             edge_kind = EdgeKind.CALL
 
+        signature_hint = self._extract_call_signature_hint(captures, source)
+
         return CallEdge(
             caller_id=caller_id,
             callee_name=callee_name,
@@ -166,6 +168,7 @@ class TypeScriptParser(BaseParser):
             file=current_scope.file if current_scope else "",
             line=anchor.start_point[0] + 1,
             resolved=False,
+            callee_signature_hint=signature_hint,
         )
 
     # ── 私有辅助方法 ─────────────────────────────────────────────────────────

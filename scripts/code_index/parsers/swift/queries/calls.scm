@@ -8,11 +8,15 @@
 (call_expression
   (navigation_expression
     (navigation_suffix
-      (simple_identifier) @callee))) @call
+      (simple_identifier) @callee))
+  (call_suffix
+    (value_arguments) @arguments)) @call
 
 ; ── 普通函数调用：func() ──────────────────────────────────────────────────────
 (call_expression
-  (simple_identifier) @callee) @call
+  (simple_identifier) @callee
+  (call_suffix
+    (value_arguments) @arguments)) @call
 
 ; ── 类继承 / 协议遵从（inheritance clause）────────────────────────────────────
 (class_declaration

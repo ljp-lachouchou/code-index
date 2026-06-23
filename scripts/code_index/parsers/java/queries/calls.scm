@@ -4,11 +4,13 @@
 
 ; ── 方法调用：obj.method() ────────────────────────────────────────────
 (method_invocation
-  name: (identifier) @callee) @call
+  name: (identifier) @callee
+  (argument_list) @arguments) @call
 
 ; ── 类实例化：new Foo() ───────────────────────────────────────────────
 (object_creation_expression
-  type: (type_identifier) @callee) @call
+  type: (type_identifier) @callee
+  (argument_list) @arguments) @call
 
 ; ── 继承关系：extends ─────────────────────────────────────────────────
 (superclass

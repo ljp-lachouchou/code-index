@@ -305,3 +305,47 @@ class BaseParser(ABC):
         """判断此解析器是否能处理指定文件。"""
         ext = Path(file_path).suffix.lstrip(".")
         return ext in self.extensions
+
+    # ── 签名提示提取（供所有子 Parser 复用）────────────────────────────────────
+
+    def _extract_call_signature_hint(
+        self,
+        captures: dict,
+        source: bytes,
+    ) -> str:
+        """从调用表达式的 captures 中提取参数个数作为签名提示。
+
+        返回参数个数的字符串形式（如 "2"），用于 Resolver 区分重载方法。
+        子类可以通过 calls.scm 中的 @arguments 捕获来提供参数节点。
+        """
+        args_node = captures.get("arguments")
+        if args_node is None:
+            return ""
+
+        args_text = self.text_of(args_node, source)
+        if not args_text or args_text == "()" or args_text == "":
+            return "0"
+
+        # 去除括号
+        inner = args_text.strip()
+        if inner.startswith("("):
+            inner = inner[1:]
+        if inner.endswith(")"):
+            inner = inner[:-1]
+
+        inner = inner.strip()
+        if not inner:
+            return "0"
+
+        # 按逗号分割，但要处理嵌套情况（如 lambda、函数调用、泛型等）
+        count = 1
+        depth = 0
+        for char in inner:
+            if char in "({[<":
+                depth += 1
+            elif char in ")}]>":
+                depth -= 1
+            elif char == "," and depth == 0:
+                count += 1
+
+        return str(count)
