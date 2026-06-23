@@ -91,6 +91,8 @@ class BaseParser(ABC):
                 "tree-sitter 未安装，请运行: pip install tree-sitter==0.21.*"
             ) from e
 
+        # 语言名称：tree-sitter grammar 中的名称（如 'tsx'、'typescript'）
+        # 子类可通过覆盖 language_name 来选择不同的 grammar（如 tsx 是 typescript 的超集）
         self._ts_language = Language(grammar_path, self.language_name)
         self._parser = Parser()
         self._parser.set_language(self._ts_language)
@@ -106,7 +108,16 @@ class BaseParser(ABC):
     @property
     @abstractmethod
     def language_name(self) -> str:
-        """tree-sitter grammar 名称，如 'kotlin' / 'swift' / 'typescript'"""
+        """tree-sitter grammar 名称，如 'kotlin' / 'swift' / 'typescript' / 'tsx'"""
+
+    @property
+    def query_dir_name(self) -> str:
+        """queries/ 目录名称，默认与 language_name 相同。
+
+        当 grammar 名称（如 'tsx'）与 query 目录名称（如 'typescript'）
+        不一致时，子类可以覆盖此属性。
+        """
+        return self.language_name
 
     @property
     @abstractmethod
@@ -281,12 +292,12 @@ class BaseParser(ABC):
 
     def _load_query(self, filename: str) -> str:
         """加载 queries/ 目录下的 .scm 文件内容。"""
-        queries_dir = Path(__file__).parent / self.language_name / "queries"
+        queries_dir = Path(__file__).parent / self.query_dir_name / "queries"
         scm_path = queries_dir / filename
         if not scm_path.exists():
             raise FileNotFoundError(
                 f"tree-sitter query 脚本不存在: {scm_path}\n"
-                f"请确认 parsers/{self.language_name}/queries/{filename} 已创建。"
+                f"请确认 parsers/{self.query_dir_name}/queries/{filename} 已创建。"
             )
         return scm_path.read_text(encoding="utf-8")
 

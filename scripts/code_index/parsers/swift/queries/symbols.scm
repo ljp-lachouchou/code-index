@@ -1,30 +1,15 @@
 ; ──────────────────────────────────────────────────────────────────────────────
 ; Swift symbols.scm — 提取 Swift 代码中的符号定义
-; 兼容 tree-sitter-swift (alex-pinkus/tree-sitter-swift)
+; 兼容 tree-sitter-swift 0.4.3 (alex-pinkus/tree-sitter-swift)
+; 注意：0.4.3 中 class/struct/enum/actor/extension 统一为 class_declaration
 ; ──────────────────────────────────────────────────────────────────────────────
 
-; ── 类声明 ────────────────────────────────────────────────────────────────────
+; ── 类/结构体/枚举/Actor 声明（统一为 class_declaration）────────────────────────
 (class_declaration
-  name: (type_identifier) @name) @symbol
-
-; ── 结构体声明 ────────────────────────────────────────────────────────────────
-(struct_declaration
   name: (type_identifier) @name) @symbol
 
 ; ── 协议声明 ──────────────────────────────────────────────────────────────────
 (protocol_declaration
-  name: (type_identifier) @name) @symbol
-
-; ── Actor 声明（Swift 5.5+）─────────────────────────────────────────────────
-(actor_declaration
-  name: (type_identifier) @name) @symbol
-
-; ── 扩展声明 ──────────────────────────────────────────────────────────────────
-(extension_declaration
-  (type_identifier) @name) @symbol
-
-; ── 枚举声明 ──────────────────────────────────────────────────────────────────
-(enum_declaration
   name: (type_identifier) @name) @symbol
 
 ; ── 顶层函数 / 方法 ───────────────────────────────────────────────────────────

@@ -63,6 +63,7 @@ def build_cmd(
     from ..core.incremental import IncrementalIndexer
     from ..core.resolver import Resolver
     from ..core.vfs_generator import VfsGenerator
+    from ..parsers.registry import get_registry
 
     console = Console()
 
@@ -73,6 +74,21 @@ def build_cmd(
 
     idx_dir = Path(index_dir) if index_dir else None
     langs = list(lang) if lang else None
+
+    # 构建前预检：检查请求的语言是否有 grammar 可用
+    registry = get_registry()
+    available = set(registry.available_parsers())
+    requested_langs = langs or list(registry.supported_languages())
+    missing_grammars = [l for l in requested_langs if l not in available]
+    if missing_grammars:
+        console.print(
+            f"[yellow]Warning: 以下语言的 grammar 未编译，这些语言的文件将被跳过：[/yellow] "
+            f"[bold]{', '.join(missing_grammars)}[/bold]"
+        )
+        console.print(
+            f"[yellow]  请运行: [bold]cd scripts && make grammars[/bold]  "
+            f"（或单独编译：make grammars-typescript）[/yellow]"
+        )
 
     inc = IncrementalIndexer(
         repo_root=str(repo_root),

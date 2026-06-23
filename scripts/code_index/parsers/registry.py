@@ -113,8 +113,18 @@ class ParserRegistry:
                 return None
             try:
                 self._parsers[lang] = factory()
-            except FileNotFoundError:
-                return None  # grammar 未编译，跳过此语言
+            except FileNotFoundError as e:
+                # grammar 未编译，打印警告（仅第一次）并跳过此语言
+                import warnings
+                warnings.warn(
+                    f"\n[code-index] WARNING: {lang} grammar 未编译，该语言的文件将被跳过。\n"
+                    f"  请运行: cd scripts && make grammars-{lang}\n"
+                    f"  或:     python code_index/grammars/build.py {lang}\n"
+                    f"  原因: {e}",
+                    stacklevel=4,
+                )
+                self._parsers[lang] = None  # type: ignore[assignment]  # 标记为"已尝试但失败"
+                return None
 
         return self._parsers[lang]
 

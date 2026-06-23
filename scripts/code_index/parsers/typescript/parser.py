@@ -44,6 +44,14 @@ class TypeScriptParser(BaseParser):
 
     @property
     def language_name(self) -> str:
+        # tree-sitter-typescript 仓库同时包含 typescript 和 tsx grammar。
+        # tsx 是 typescript 的超集，包含所有 typescript 节点 + JSX 节点。
+        # 使用 tsx 可以统一处理 .ts 和 .tsx 文件。
+        return "tsx"
+
+    @property
+    def query_dir_name(self) -> str:
+        # query 文件仍放在 typescript/ 目录下（tsx 与 typescript 共享 query）
         return "typescript"
 
     @property

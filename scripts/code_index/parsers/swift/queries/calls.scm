@@ -1,18 +1,21 @@
 ; ──────────────────────────────────────────────────────────────────────────────
 ; Swift calls.scm — 提取调用关系和继承关系
+; 兼容 tree-sitter-swift 0.4.3 (alex-pinkus/tree-sitter-swift)
+; 注意：call_expression 结构已变化，不再使用 function: 字段
 ; ──────────────────────────────────────────────────────────────────────────────
 
 ; ── 方法调用：receiver.method() ───────────────────────────────────────────────
 (call_expression
-  function: (navigation_expression
+  (navigation_expression
     (navigation_suffix
       (simple_identifier) @callee))) @call
 
 ; ── 普通函数调用：func() ──────────────────────────────────────────────────────
 (call_expression
-  function: (simple_identifier) @callee) @call
+  (simple_identifier) @callee) @call
 
 ; ── 类继承 / 协议遵从（inheritance clause）────────────────────────────────────
-(inheritance_specifier
-  (user_type
-    (type_identifier) @callee)) @extends
+(class_declaration
+  (inheritance_specifier
+    (user_type
+      (type_identifier) @callee))) @extends
